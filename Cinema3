@@ -1,1 +1,60 @@
+-- 1/ Get the Top 3 film that have the most CUSTOMERS book
+SELECT f.name, COUNT(DISTINCT b.customer_id) AS num_customer_booking
+FROM `cinema-k4`.film f
+	JOIN `cinema-k4`.screening s ON s.film_id = f.id
+	JOIN `cinema-k4`.booking b ON b.screening_id = s.id
+GROUP BY f.name
+ORDER BY num_customer_booking DESC
+LIMIT 3;
+
+-- 2/ Get all the films that longer than average length
+SELECT * 
+FROM `cinema-k4`.film
+WHERE `cinema-k4`.film.length_min > (SELECT AVG(length_min) FROM `cinema-k4`.film);
+
+-- 3/ Get the room which have the highest and lowest screenings IN 1 SQL query
+SELECT room_id, COUNT(*) AS count_num_screenings
+FROM `cinema-k4`.screening
+GROUP By room_id
+HAVING COUNT(*) = (
+	SELECT MAX(screening_count) AS max_count
+	FROM (
+		SELECT COUNT(*) AS screening_count
+        FROM `cinema-k4`.screening
+        GROUP BY room_id
+        ) AS counting_screenings
+)
+OR COUNT(*) = (
+	SELECT MIN(screening_count) AS min_count
+	FROM (
+		SELECT COUNT(*) AS screening_count
+        FROM `cinema-k4`.screening
+        GROUP BY room_id
+        ) AS counting_screenings
+)
+ORDER BY count_num_screenings DESC; 
+
+-- 4/ Get number of booking customers of each room of film ‘Tom&Jerry’
+SELECT r.name, COUNT(*)
+FROM `cinema-k4`.room r
+	JOIN `cinema-k4`.screening s ON s.room_id = r.id
+    JOIN `cinema-k4`.film f ON f.id = s.film_id
+    JOIN `cinema-k4`.booking b ON b.screening_id = b.id
+WHERE f.name = 'Tom&Jerry'
+GROUP BY r.name;
+
+-- 5/ What seat is being book the most ?
+SELECT seat.*, COUNT(seat.id)
+FROM `cinema-k4`.reserved_seat
+	JOIN `cinema-k4`.seat ON seat.id = reserved_seat.seat_id
+GROUP BY seat.id
+HAVING COUNT(seat.id) = 
+    (SELECT COUNT(reserved_seat.id) AS count_reserved_seats
+    FROM `cinema-k4`.seat 
+		JOIN `cinema-k4`.reserved_seat ON seat.id = reserved_seat.seat_id
+	GROUP BY seat.id
+    ORDER BY count_reserved_seats DESC
+    LIMIT 1);
+    
+-- 6/ What film have the most screens in 2022?
 
