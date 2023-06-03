@@ -18,18 +18,16 @@ FROM `cinema-k4`.screening
 GROUP By room_id
 HAVING COUNT(*) = (
 	SELECT MAX(screening_count) AS max_count
-	FROM (
-		SELECT COUNT(*) AS screening_count
-        FROM `cinema-k4`.screening
-        GROUP BY room_id
+	FROM (SELECT COUNT(*) AS screening_count
+        	FROM `cinema-k4`.screening
+       	 	GROUP BY room_id
         ) AS counting_screenings
 )
 OR COUNT(*) = (
 	SELECT MIN(screening_count) AS min_count
-	FROM (
-		SELECT COUNT(*) AS screening_count
-        FROM `cinema-k4`.screening
-        GROUP BY room_id
+	FROM (SELECT COUNT(*) AS screening_count
+        	FROM `cinema-k4`.screening
+        	GROUP BY room_id
         ) AS counting_screenings
 )
 ORDER BY count_num_screenings DESC; 
@@ -51,10 +49,10 @@ GROUP BY seat.id
 HAVING COUNT(seat.id) = 
     (SELECT COUNT(reserved_seat.id) AS count_reserved_seats
     FROM `cinema-k4`.seat 
-		JOIN `cinema-k4`.reserved_seat ON seat.id = reserved_seat.seat_id
+	JOIN `cinema-k4`.reserved_seat ON seat.id = reserved_seat.seat_id
 	GROUP BY seat.id
-    ORDER BY count_reserved_seats DESC
-    LIMIT 1);
+    	ORDER BY count_reserved_seats DESC
+    	LIMIT 1);
     
 -- 6/ What film have the most screens in 2022?
 
